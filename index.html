@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Artifact AI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="header" id="main-header">
+        <div class="logo">Artifact<span>_AI</span></div>
+        <div style="display: flex; align-items: center;">
+            
+            <div class="custom-select" id="lang-select" style="margin-right: 10px;">
+                <div class="custom-select-trigger" onclick="toggleDropdown('lang-dropdown')">
+                    <span id="current-lang-text">RU</span>
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="custom-options" id="lang-dropdown">
+                    <div class="custom-option" onclick="selectLanguage('ru', 'RU')">RU</div>
+                    <div class="custom-option" onclick="selectLanguage('uk', 'UA')">UA</div>
+                    <div class="custom-option" onclick="selectLanguage('en', 'EN')">EN</div>
+                </div>
+            </div>
+
+            <div class="balance">
+                <svg class="token-svg" viewBox="0 0 24 24"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon><line x1="12" y1="22" x2="12" y2="12"></line><line x1="22" y1="8.5" x2="12" y2="12"></line><line x1="2" y1="8.5" x2="12" y2="12"></line></svg>
+                <span id="balance-val">1,000,000</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <!-- ЭКРАН 1: ПЕРСОНАЖИ/МИРЫ -->
+        <div id="screen-chars" class="screen active">
+            <div class="main-tabs">
+                <div class="mtab active" onclick="switchMainTab('all', this)">Все</div>
+                <div class="mtab" onclick="switchMainTab('recs', this)">Рекомендации</div>
+            </div>
+
+            <div class="search-wrapper" style="margin-top: 15px;">
+                <div class="search-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
+                <input type="text" class="search-bar" placeholder="Поиск по имени...">
+            </div>
+            
+            <button class="btn-create-large" onclick="startCreate()">
+                <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Создать</span>
+            </button>
+            
+            <div class="char-grid">
+                <div class="char-card" onclick="openChat('Кай')">
+                    <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=400&auto=format&fit=crop');"></div>
+                    <div class="card-info">
+                        <div class="card-name">Кай</div>
+                        <div class="card-desc">Ты — его заказ</div>
+                    </div>
+                </div>
+                <div class="char-card">
+                    <div class="card-img" style="background: var(--panel-light); display:flex; align-items:center; justify-content:center;">
+                        <svg class="icon" style="width: 40px; height: 40px; color: var(--text-muted);" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    </div>
+                    <div class="card-info">
+                        <div class="card-name">Мир Магии</div>
+                        <div class="card-desc">Магия и приключения</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ЭКРАН 2: СОЗДАНИЕ ПЕРСОНАЖА/МИРА -->
+        <div id="screen-create" class="screen">
+            <div class="create-header">Создание</div>
+            <div class="toggle-container" id="toggle-container">
+                <div class="toggle-bg" id="toggle-bg"></div>
+                <div class="toggle-btn active" id="btn-mode-char" onclick="switchMode(false)">Один персонаж</div>
+                <div class="toggle-btn" id="btn-mode-universe" onclick="switchMode(true)">Вселенная</div>
+            </div>
+
+            <div class="form-container" id="form-container">
+                <div id="form-char" class="form-wrapper active">
+                    <div class="input-group">
+                        <label>Аватар</label>
+                        <div class="avatar-drop-zone" id="drop-zone-char">
+                            <svg class="icon" style="width:24px; height:24px;" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                            <div class="drop-text" id="text-char">Нажмите для загрузки</div>
+                            <img class="avatar-preview" id="preview-char" src="" alt="Preview">
+                            <input type="file" accept="image/*" id="input-char">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Имя персонажа (до 50 символов) *</label>
+                        <input type="text" class="input-field" id="char-name-input" maxlength="50" placeholder="Например: Люцифер">
+                    </div>
+                    <div class="input-group">
+                        <label>Внешность (без ограничений) *</label>
+                        <textarea class="input-field" placeholder="Опишите внешность..."></textarea>
+                    </div>
+                </div>
+
+                <div id="form-universe" class="form-wrapper">
+                    <div class="input-group">
+                        <label>Обложка мира</label>
+                        <div class="avatar-drop-zone" id="drop-zone-universe">
+                            <svg class="icon" style="width:24px; height:24px;" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                            <div class="drop-text" id="text-universe">Нажмите для загрузки</div>
+                            <img class="avatar-preview" id="preview-universe" src="" alt="Preview">
+                            <input type="file" accept="image/*" id="input-universe">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Название вселенной (до 50 символов) *</label>
+                        <input type="text" class="input-field" id="universe-name-input" maxlength="50" placeholder="Например: Мир Магии">
+                    </div>
+                    <div class="input-group">
+                        <label>Персонажи мира (описание или .txt) *</label>
+                        <textarea class="input-field" placeholder="Опишите персонажей..."></textarea>
+                        <div class="file-input-wrapper"><input type="file" accept=".txt"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group" style="margin-top: 15px;">
+                <label>Сюжет и Предыстория (текст или .txt) *</label>
+                <textarea class="input-field" id="char-plot-input" placeholder="Опишите мир, завязку и то, как начинается ваша история..."></textarea>
+                <div class="file-input-wrapper"><input type="file" accept=".txt"></div>
+            </div>
+            
+            <div class="input-group">
+                <label>Лор мира (текст или .txt) *</label>
+                <textarea class="input-field" id="char-lore-input" placeholder="Опишите правила мира..."></textarea>
+                <div class="file-input-wrapper"><input type="file" accept=".txt"></div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn secondary" onclick="history.back()">Отмена</button>
+                <button class="btn" onclick="saveCharacter()">Создать</button>
+            </div>
+        </div>
+            <!-- ЭКРАН 2.1: СОЗДАНИЕ ОС -->
+    <div id="screen-create-os" class="screen">
+        <div class="create-header">Создание ОС (Персоны)</div>
+        <div class="toggle-container">
+            <div class="toggle-bg os-bg" id="os-toggle-bg"></div>
+            <div class="toggle-btn active" id="btn-os-form" onclick="switchOsMode(false)">Анкета</div>
+            <div class="toggle-btn" id="btn-os-file" onclick="switchOsMode(true)">Файл</div>
+        </div>
+
+        <div id="os-form-wrapper">
+            <div class="input-group">
+                <label>Имя (до 50 символов) *</label>
+                <input type="text" class="input-field" maxlength="50" placeholder="Имя вашей ОС">
+            </div>
+            <div class="input-group">
+                <label>Внешность *</label>
+                <textarea class="input-field" placeholder="Описание внешности..."></textarea>
+            </div>
+            <div class="input-group">
+                <label>Раса *</label>
+                <input type="text" class="input-field" placeholder="Человек, эльф, демон...">
+            </div>
+            <div class="input-group">
+                <label>Иное (факты, предпочтения)</label>
+                <textarea class="input-field" placeholder="Что любит, о чем мечтает..."></textarea>
+            </div>
+        </div>
+
+        <div id="os-file-wrapper" style="display: none;">
+            <div class="input-group">
+                <label>Загрузите файл с ОС</label>
+                <div class="file-input-wrapper" style="padding: 20px; border: 2px dashed var(--border); border-radius: 12px; text-align: center;">
+                    <p style="color: var(--text-muted); margin-bottom: 15px;">Поддерживаются форматы .txt, .json, .md</p>
+                    <input type="file" accept=".txt,.json,.md" style="margin: 0 auto;">
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn secondary" onclick="history.back()">Отмена</button>
+            <button class="btn" onclick="saveOS()">Сохранить ОС</button>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 3: ЧАТЫ (СПИСОК) -->
+    <div id="screen-chats" class="screen">
+        <div class="create-header">Мои чаты</div>
+        <div class="list-container" style="margin-top: 0;">
+            <div class="list-item" onclick="resumeChat('Кай')" style="padding: 15px;">
+                <div class="list-item-left">
+                    <div style="width: 45px; height: 45px; background-image: url('https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=100&auto=format&fit=crop'); background-size: cover; border-radius: 50%;"></div>
+                    <div>
+                        <div style="font-weight: bold; font-size: 16px;">Кай</div>
+                        <div style="font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">Последнее: *Кай сидит в темном углу...</div>
+                    </div>
+                </div>
+                <span class="list-item-arrow">›</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 4: ПРОФИЛЬ -->
+    <div id="screen-profile" class="screen">
+        <div class="theme-switcher-container">
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle" onchange="toggleTheme(this)">
+                <span class="slider"></span>
+            </label>
+            <span style="font-size: 13px; color: var(--text-muted);">Светлая тема</span>
+        </div>
+
+        <div class="profile-top">
+            <div class="avatar-circle large" id="profile-avatar-container">
+                <svg class="icon" style="width:40px; height:40px;" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <div class="profile-name">
+                <span id="user-nick">DefiantLouse8800</span>
+                <button class="edit-nick-btn" onclick="editNickname()">✎</button>
+            </div>
+            <div class="profile-stats">0 Подписчики • 0 Мои подписки | 💬 0 взаимодействий</div>
+            <button class="btn settings-btn" onclick="openPromoModal()">Промокоды</button>
+        </div>
+
+        <div class="profile-tabs">
+            <div class="ptab" onclick="switchProfileTab('os', this)">ОС</div>
+            <div class="ptab" onclick="switchProfileTab('chars', this)">Персонажи</div>
+            <div class="ptab active" onclick="switchProfileTab('purchases', this)">Покупки</div>
+            <div class="ptab" onclick="switchProfileTab('likes', this)">Лайки</div>
+        </div>
+
+        <div class="profile-content">
+            <div id="ptab-os" class="ptab-content">
+                <button class="btn-create-large" onclick="startCreateOS()">
+                    <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>Создать ОС</span>
+                </button>
+            </div>
+            <div id="ptab-chars" class="ptab-content">
+                <div class="list-item" style="padding: 15px 0; border-bottom: 1px solid var(--border); cursor: default;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 45px; height: 45px; background: #333; border-radius: 50%;"></div>
+                        <div>
+                            <div style="font-weight: bold;">Мой Киберпанк</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Мир</div>
+                        </div>
+                    </div>
+                    <div class="like-dislike-btns">
+                        <button class="like-btn" onclick="alert('Лайк!')">
+                            <svg class="icon" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                        </button>
+                        <button class="dislike-btn" onclick="alert('Дизлайк!')">
+                            <svg class="icon" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="ptab-purchases" class="ptab-content active">
+                <div class="shop-grid">
+                    <div class="shop-square-card">
+                        <div class="shop-square-title">120 тыс. токенов</div>
+                        <div class="shop-square-price">30 Stars</div>
+                        <button class="btn" onclick="showAlert('Покупка', 'Оплата временно недоступна.')">Купить</button>
+                    </div>
+                    <div class="shop-square-card">
+                        <div class="shop-square-title">180 тыс. токенов</div>
+                        <div class="shop-square-price">55 Stars</div>
+                        <button class="btn" onclick="showAlert('Покупка', 'Оплата временно недоступна.')">Купить</button>
+                    </div>
+                    <div class="shop-square-card">
+                        <div class="shop-square-title">240 тыс. токенов</div>
+                        <div class="shop-square-price">80 Stars</div>
+                        <button class="btn" onclick="showAlert('Покупка', 'Оплата временно недоступна.')">Купить</button>
+                    </div>
+                    <div class="shop-square-card">
+                        <div class="shop-square-title">500 тыс. токенов</div>
+                        <div class="shop-square-price">120 Stars</div>
+                        <button class="btn" onclick="showAlert('Покупка', 'Оплата временно недоступна.')">Купить</button>
+                    </div>
+                </div>
+            </div>
+            <div id="ptab-likes" class="ptab-content">
+                <p style="color: var(--text-muted); font-size: 13px; text-align: center;">Вы пока не лайкали персонажей.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 5: ЧАТ -->
+    <div id="screen-chat" class="screen hidden">
+        <div class="chat-header">
+            <button class="back-btn" onclick="history.back()">
+                <svg class="icon" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <div class="chat-title" id="chat-title-text">Кай</div>
+            <div class="chat-header-avatar" id="chat-char-avatar"></div>
+            <button class="menu-btn" onclick="toggleChatMenu()">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>
+            </button>
+        </div>
+
+        <div class="chat-side-menu" id="chat-side-menu">
+            <div class="side-menu-header">
+                <span class="side-menu-title">Меню</span>
+                <button class="close-menu-btn" onclick="toggleChatMenu()">
+                    <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+
+            <button class="btn" onclick="startNewChat()" style="margin-top: 0;">Создать новый чат</button>
+            
+            <button class="btn secondary" onclick="openHistoryOverlay()" style="justify-content: space-between;">
+                <span>История чатов</span>
+                <span id="chat-count" style="color: var(--text-muted); font-size: 13px;">(0)</span>
+            </button>
+
+            <div class="menu-section" style="margin-top: 15px;">
+                <h4>Стиль письма ИИ</h4>
+                <div class="custom-select" style="width: 100%;">
+                    <div class="custom-select-trigger" onclick="toggleDropdown('style-dropdown')" style="background: var(--bg);">
+                        <span id="current-style-text">Стандартный (Книжный)</span>
+                        <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                    <div class="custom-options" id="style-dropdown">
+                        <div class="custom-option" onclick="selectWritingStyle('standard', 'Стандартный (Книжный)')">Стандартный (Книжный)</div>
+                        <div class="custom-option" onclick="selectWritingStyle('custom', 'Кастомный (РП)')">Кастомный (РП)</div>
+                    </div>
+                </div>
+                <p class="style-desc" id="style-desc">*Действие* — реплика.</p>
+            </div>
+
+            <div class="menu-section" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
+                <div class="settings-toggle-row" style="padding: 0;">
+                    <div class="settings-info">
+                        <div class="settings-title">Кастомный лорбук</div>
+                        <div class="settings-desc" style="font-size: 11px;">Расширяет память ИИ. Помнит контекст диалога.</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="custom-lore-toggle" onchange="toggleCustomLore(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="warning-box" id="lore-warning">
+                    <div class="warning-text" style="font-size: 11px;">
+                        Включено. Расходует токены активнее для глубокого запоминания.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-overlay" id="history-overlay">
+            <div class="side-menu-header">
+                <button class="back-btn" onclick="closeHistoryOverlay()">
+                    <svg class="icon" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </button>
+                <span class="side-menu-title">История чатов</span>
+            </div>
+            
+            <div class="history-list-full" id="history-list-full">
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chat-messages"></div>
+        
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" id="msg-input" placeholder="Ваше действие..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" onclick="sendMessage()">
+                <svg class="icon" style="color: var(--bg);" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </div>
+    </div>
+</div>
+    <div class="bottom-nav" id="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('screen-chars', this)">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span>Персонажи</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('screen-chats', this)">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Чаты</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('screen-profile', this)">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Профиль</span>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="custom-modal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="modal-title">Внимание</h3>
+            <p class="modal-message" id="modal-message">Текст предупреждения</p>
+            <div class="modal-actions">
+                <button class="btn secondary" id="modal-btn-no-show" style="font-size: 12px; margin-right: auto; padding: 8px 12px; width: auto; background: none; color: var(--text-muted);">Больше не показывать</button>
+                <button class="btn secondary" id="modal-btn-cancel" onclick="closeModal(false)">Отмена</button>
+                <button class="btn" onclick="closeModal(true)">ОК</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="edit-modal" style="z-index: 110;">
+        <div class="modal-box">
+            <h3 class="modal-title" id="edit-modal-title">Редактировать</h3>
+            <textarea class="input-field" id="edit-modal-input" style="min-height: 50px; margin-bottom: 15px;"></textarea>
+            <div class="modal-actions">
+                <button class="btn secondary" onclick="closeEditModal(false)">Отмена</button>
+                <button class="btn" onclick="closeEditModal(true)">Применить</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="google_translate_element" style="display:none;"></div>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'ru', autoDisplay: false}, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script src="app.js"></script>
+</body>
+</html>
